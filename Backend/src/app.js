@@ -11,13 +11,13 @@ app.get('/', (req, res) => {
   res.send('Backend running');
 });
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT} bound to 0.0.0.0`);
+  console.log(`Server running on port ${PORT}`);
 });
 
-const authRoutes = require('./routes/authRoutes');
+const authRoutes = require('./routes/AuthRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const homeworkRoutes = require('./routes/homeworkRoutes');
