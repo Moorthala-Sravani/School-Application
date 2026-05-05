@@ -21,6 +21,7 @@ const PARENT_ITEMS = [
 const TEACHER_ITEMS = [
   { icon: '🏠', label: 'Dashboard', screen: 'Tabs' },
   { icon: '✅', label: 'Attendance', screen: 'TeacherAttendance' },
+  { icon: '📚', label: 'Books', screen: 'TeacherBooks' },
   { icon: '🎓', label: 'Academics', screen: 'Academics' },
   { icon: '📅', label: 'Timetable', screen: 'TeacherTimetable' },
   { icon: '💬', label: 'Messages', screen: 'Messages' },
@@ -32,6 +33,7 @@ const ADMIN_ITEMS = [
   { icon: '🏠', label: 'Dashboard', screen: 'Tabs' },
   { icon: '💰', label: 'Billing', screen: 'AdminBilling' },
   { icon: '👕', label: 'Uniform', screen: 'AdminUniform' },
+  { icon: '📚', label: 'Books', screen: 'AdminBooks' },
   { icon: '👥', label: 'User Mgmt', screen: 'AdminUsers' },
   { icon: '🏫', label: 'Class Mgmt', screen: 'AdminClasses' },
   { icon: '🚌', label: 'Bus Mgmt', screen: 'AdminBus' },
@@ -89,7 +91,7 @@ const DrawerNavigator = ({ navigation }: any) => {
     }
     
     const unbuiltScreens = [
-      'Academics', 'Books', 'Uniform', 'Notifications', 
+      'Academics', 'Uniform', 'Notifications',
       'AdminUsers', 'AdminClasses', 'AdminBus', 'AdminReports',
       'Settings', 'Help'
     ];

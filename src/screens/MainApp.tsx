@@ -27,6 +27,11 @@ import PayFeesScreen      from './MainScreenDashboard/PayFeesScreen';
 import BusTrackingScreen  from './MainScreenDashboard/BusLocationScreen';
 import UniformScreen      from './MainScreenDashboard/UniformScreen';
 
+// Books Screens
+import BooksScreen        from './MainScreenDashboard/BooksScreen';
+import TeacherBooksScreen from './Teacher/TeacherBooksScreen';
+import AdminBooksScreen   from './Admin/AdminBooksScreen';
+
 // Teacher Menu Screens
 import TeacherTimetableScreen  from './Teacher/TeacherTimetableScreen';
 import TeacherAttendanceScreen from './Teacher/TeacherAttendanceScreen';
@@ -69,6 +74,11 @@ const MainApp = () => {
       <Drawer.Screen name="PayFees"        component={PayFeesScreen}       />
       <Drawer.Screen name="BusLocation"    component={BusTrackingScreen}   />
       <Drawer.Screen name="Uniform"        component={UniformScreen}       />
+
+      {/* Books Screens */}
+      <Drawer.Screen name="Books"        component={BooksScreen}        />
+      <Drawer.Screen name="TeacherBooks" component={TeacherBooksScreen} />
+      <Drawer.Screen name="AdminBooks"   component={AdminBooksScreen}   />
 
       {/* Teacher Menu Screens */}
       <Drawer.Screen name="TeacherTimetable"  component={TeacherTimetableScreen}  />
