@@ -29,6 +29,7 @@ const busRoutes = require('./routes/busRoutes');
 const billingRoutes = require('./routes/billingRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const booksRoutes = require('./routes/booksRoutes');
+const adminConfigRoutes = require('./routes/adminConfigRoutes');
 
 // Import new controllers
 const authMiddleware = require('./middlewares/authMiddleware');
@@ -49,6 +50,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/billing', billingRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/books', booksRoutes);
+app.use('/api/admin', adminConfigRoutes);
 
 // Register new routes
 app.post('/api/payments/pay', authMiddleware, paymentController.processPayment);

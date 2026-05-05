@@ -38,6 +38,7 @@ import TeacherLeaveScreen from '../screens/Teacher/TeacherLeaveScreen';
 import BooksScreen from '../screens/MainScreenDashboard/BooksScreen';
 import TeacherBooksScreen from '../screens/Teacher/TeacherBooksScreen';
 import AdminBooksScreen from '../screens/Admin/AdminBooksScreen';
+import AdminConfiguratorScreen from '../screens/Admin/AdminConfiguratorScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -157,6 +158,7 @@ const StackNavigator = () => {
       <Stack.Screen name="Books" component={BooksScreen} />
       <Stack.Screen name="TeacherBooks" component={TeacherBooksScreen} />
       <Stack.Screen name="AdminBooks" component={AdminBooksScreen} />
+      <Stack.Screen name="AdminConfigurator" component={AdminConfiguratorScreen} />
     </Stack.Navigator>
   );
 };

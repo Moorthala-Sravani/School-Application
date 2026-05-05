@@ -1,0 +1,293 @@
+<div style="background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1.5rem;">
+  <style>
+    .tab-nav { display: flex; gap: 12px; margin-bottom: 1.5rem; border-bottom: 0.5px solid var(--color-border-tertiary); padding-bottom: 12px; }
+    .tab-btn { background: none; border: none; padding: 8px 16px; cursor: pointer; font-size: 14px; color: var(--color-text-secondary); border-bottom: 2px solid transparent; transition: all 0.2s; }
+    .tab-btn.active { color: var(--color-text-primary); border-bottom-color: var(--color-border-info); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--color-text-primary); }
+    input, select, textarea { width: 100%; padding: 8px 12px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); font-size: 14px; }
+    input:focus, select:focus { outline: none; border-color: var(--color-border-info); background: var(--color-background-info); }
+    button { padding: 8px 16px; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; font-size: 14px; transition: all 0.2s; }
+    button:hover { background: var(--color-background-tertiary); }
+    button.add-btn { background: var(--color-background-info); color: var(--color-text-info); border: none; }
+    .metric-card { background: var(--color-background-secondary); padding: 1rem; border-radius: var(--border-radius-md); margin-bottom: 12px; }
+    .metric-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px; }
+    .metric-value { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+    .item-card { background: var(--color-background-secondary); padding: 12px; border-radius: var(--border-radius-md); margin-bottom: 10px; border-left: 3px solid var(--color-border-info); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .full-width { grid-column: 1 / -1; }
+    .remove-btn { background: var(--color-background-danger); color: white; border: none; padding: 4px 8px; font-size: 12px; }
+  </style>
+
+  <h2 style="margin: 0 0 1.5rem; font-size: 18px; color: var(--color-text-primary);">School Management System Configurator</h2>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab(event, 'uniforms')">Uniforms</button>
+    <button class="tab-btn" onclick="switchTab(event, 'attendance')">Attendance & Fees</button>
+    <button class="tab-btn" onclick="switchTab(event, 'leaves')">Leaves</button>
+    <button class="tab-btn" onclick="switchTab(event, 'summary')">Summary</button>
+  </div>
+
+  <!-- UNIFORMS TAB -->
+  <div id="uniforms" class="tab-content active">
+    <h3 style="margin-top: 0; color: var(--color-text-primary); font-size: 16px;">Uniform Classes & Pricing</h3>
+    
+    <div id="uniformsList"></div>
+    
+    <button class="add-btn" onclick="addUniformClass()">+ Add Uniform Class</button>
+
+    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 0.5px solid var(--color-border-tertiary);">
+      <h4 style="margin-top: 0; color: var(--color-text-primary);">Summary</h4>
+      <div class="metric-card">
+        <div class="metric-label">Total Uniform Classes</div>
+        <div class="metric-value" id="uniformCount">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Average Annual Cost</div>
+        <div class="metric-value" id="avgUniformCost">Rs. 0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ATTENDANCE & FEES TAB -->
+  <div id="attendance" class="tab-content">
+    <h3 style="margin-top: 0; color: var(--color-text-primary); font-size: 16px;">Attendance & Fee Configuration</h3>
+    
+    <div class="row">
+      <div class="form-group">
+        <label class="form-label">Working Days per Year</label>
+        <input type="number" id="workingDays" value="220" onchange="updateMetrics()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Minimum Attendance %</label>
+        <input type="number" id="minAttendance" value="75" onchange="updateMetrics()" step="5">
+      </div>
+    </div>
+
+    <h4 style="color: var(--color-text-primary);">Monthly Fees</h4>
+    <div id="feesList"></div>
+    <button class="add-btn" onclick="addFee()">+ Add Fee Type</button>
+
+    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 0.5px solid var(--color-border-tertiary);">
+      <h4 style="margin-top: 0; color: var(--color-text-primary);">Summary</h4>
+      <div class="metric-card">
+        <div class="metric-label">Total Monthly Fee</div>
+        <div class="metric-value" id="totalFee">Rs. 0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Annual Fee (12 months)</div>
+        <div class="metric-value" id="annualFee">Rs. 0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEAVES TAB -->
+  <div id="leaves" class="tab-content">
+    <h3 style="margin-top: 0; color: var(--color-text-primary); font-size: 16px;">Leave Types & Limits</h3>
+    
+    <div id="leavesList"></div>
+    <button class="add-btn" onclick="addLeaveType()">+ Add Leave Type</button>
+
+    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 0.5px solid var(--color-border-tertiary);">
+      <h4 style="margin-top: 0; color: var(--color-text-primary);">Summary</h4>
+      <div class="metric-card">
+        <div class="metric-label">Total Leave Types</div>
+        <div class="metric-value" id="leaveTypeCount">0</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Total Leave Days Available</div>
+        <div class="metric-value" id="totalLeaveDays">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUMMARY TAB -->
+  <div id="summary" class="tab-content">
+    <h3 style="margin-top: 0; color: var(--color-text-primary); font-size: 16px;">Complete System Summary</h3>
+    
+    <div class="metric-card">
+      <div class="metric-label">Uniform Classes Configured</div>
+      <div class="metric-value" id="summaryUniforms">0</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Annual Fee per Student</div>
+      <div class="metric-value" id="summaryAnnualFee">Rs. 0</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Leave Days per Student</div>
+      <div class="metric-value" id="summaryLeaveDays">0</div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-label">Minimum Attendance Required</div>
+      <div class="metric-value" id="summaryMinAttendance">0%</div>
+    </div>
+
+    <button class="add-btn" onclick="exportConfig()">Export Configuration (JSON)</button>
+  </div>
+</div>
+
+<script>
+let uniforms = [
+  { id: 1, class: '6-8', components: 'Shirt, Pants, Tie', cost: 1500 },
+  { id: 2, class: '9-10', components: 'Shirt, Pants, Blazer, Tie', cost: 2600 },
+  { id: 3, class: '11-12', components: 'Formal Shirt, Pants, Blazer, Tie', cost: 3200 }
+];
+
+let fees = [
+  { id: 1, name: 'Tuition', amount: 5000 },
+  { id: 2, name: 'Transport', amount: 500 },
+  { id: 3, name: 'Books', amount: 125 }
+];
+
+let leaves = [
+  { id: 1, type: 'Medical', days: 10 },
+  { id: 2, type: 'Casual', days: 5 },
+  { id: 3, type: 'Earned', days: 15 }
+];
+
+function switchTab(e, tabName) {
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.getElementById(tabName).classList.add('active');
+  e.target.classList.add('active');
+}
+
+function renderUniforms() {
+  const list = document.getElementById('uniformsList');
+  list.innerHTML = uniforms.map(u => `
+    <div class="item-card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong style="color: var(--color-text-primary);">Class ${u.class}</strong>
+          <div style="font-size: 13px; color: var(--color-text-secondary); margin-top: 4px;">${u.components}</div>
+          <div style="font-size: 14px; color: var(--color-text-primary); margin-top: 6px; font-weight: 500;">Rs. ${Math.round(u.cost).toLocaleString('en-IN')}/year</div>
+        </div>
+        <button class="remove-btn" onclick="removeUniform(${u.id})">Remove</button>
+      </div>
+    </div>
+  `).join('');
+  updateMetrics();
+}
+
+function addUniformClass() {
+  const newId = Math.max(...uniforms.map(u => u.id), 0) + 1;
+  uniforms.push({
+    id: newId,
+    class: prompt('Enter class (e.g., 6-8):') || 'Custom',
+    components: prompt('Enter components:') || 'Uniform Items',
+    cost: parseInt(prompt('Enter annual cost:')) || 2000
+  });
+  renderUniforms();
+}
+
+function removeUniform(id) {
+  uniforms = uniforms.filter(u => u.id !== id);
+  renderUniforms();
+}
+
+function renderFees() {
+  const list = document.getElementById('feesList');
+  list.innerHTML = fees.map(f => `
+    <div class="item-card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong style="color: var(--color-text-primary);">${f.name}</strong>
+          <div style="font-size: 14px; color: var(--color-text-primary); margin-top: 6px; font-weight: 500;">Rs. ${Math.round(f.amount).toLocaleString('en-IN')}/month</div>
+        </div>
+        <button class="remove-btn" onclick="removeFee(${f.id})">Remove</button>
+      </div>
+    </div>
+  `).join('');
+  updateMetrics();
+}
+
+function addFee() {
+  const newId = Math.max(...fees.map(f => f.id), 0) + 1;
+  fees.push({
+    id: newId,
+    name: prompt('Enter fee name:') || 'Fee',
+    amount: parseInt(prompt('Enter monthly amount:')) || 500
+  });
+  renderFees();
+}
+
+function removeFee(id) {
+  fees = fees.filter(f => f.id !== id);
+  renderFees();
+}
+
+function renderLeaves() {
+  const list = document.getElementById('leavesList');
+  list.innerHTML = leaves.map(l => `
+    <div class="item-card">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <strong style="color: var(--color-text-primary);">${l.type} Leave</strong>
+          <div style="font-size: 14px; color: var(--color-text-primary); margin-top: 6px; font-weight: 500;">${l.days} days/year</div>
+        </div>
+        <button class="remove-btn" onclick="removeLeave(${l.id})">Remove</button>
+      </div>
+    </div>
+  `).join('');
+  updateMetrics();
+}
+
+function addLeaveType() {
+  const newId = Math.max(...leaves.map(l => l.id), 0) + 1;
+  leaves.push({
+    id: newId,
+    type: prompt('Enter leave type:') || 'Leave',
+    days: parseInt(prompt('Enter days allowed:')) || 5
+  });
+  renderLeaves();
+}
+
+function removeLeave(id) {
+  leaves = leaves.filter(l => l.id !== id);
+  renderLeaves();
+}
+
+function updateMetrics() {
+  const totalFee = fees.reduce((sum, f) => sum + f.amount, 0);
+  const annualFee = totalFee * 12;
+  const avgUniformCost = uniforms.length > 0 ? uniforms.reduce((sum, u) => sum + u.cost, 0) / uniforms.length : 0;
+  const totalLeaveDays = leaves.reduce((sum, l) => sum + l.days, 0);
+  const minAttendance = parseInt(document.getElementById('minAttendance').value);
+
+  document.getElementById('uniformCount').textContent = uniforms.length;
+  document.getElementById('avgUniformCost').textContent = `Rs. ${Math.round(avgUniformCost).toLocaleString('en-IN')}`;
+  document.getElementById('totalFee').textContent = `Rs. ${Math.round(totalFee).toLocaleString('en-IN')}`;
+  document.getElementById('annualFee').textContent = `Rs. ${Math.round(annualFee).toLocaleString('en-IN')}`;
+  document.getElementById('leaveTypeCount').textContent = leaves.length;
+  document.getElementById('totalLeaveDays').textContent = totalLeaveDays;
+
+  document.getElementById('summaryUniforms').textContent = uniforms.length;
+  document.getElementById('summaryAnnualFee').textContent = `Rs. ${Math.round(annualFee).toLocaleString('en-IN')}`;
+  document.getElementById('summaryLeaveDays').textContent = totalLeaveDays;
+  document.getElementById('summaryMinAttendance').textContent = minAttendance + '%';
+}
+
+function exportConfig() {
+  const config = {
+    uniforms,
+    fees,
+    leaves,
+    workingDays: parseInt(document.getElementById('workingDays').value),
+    minAttendance: parseInt(document.getElementById('minAttendance').value),
+    exportDate: new Date().toISOString()
+  };
+  const json = JSON.stringify(config, null, 2);
+  alert('Configuration exported! Copy this:\n\n' + json);
+}
+
+renderUniforms();
+renderFees();
+renderLeaves();
+updateMetrics();
+</script>
+</div>

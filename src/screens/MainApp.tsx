@@ -31,6 +31,7 @@ import UniformScreen      from './MainScreenDashboard/UniformScreen';
 import BooksScreen        from './MainScreenDashboard/BooksScreen';
 import TeacherBooksScreen from './Teacher/TeacherBooksScreen';
 import AdminBooksScreen   from './Admin/AdminBooksScreen';
+import AdminConfiguratorScreen from './Admin/AdminConfiguratorScreen';
 
 // Teacher Menu Screens
 import TeacherTimetableScreen  from './Teacher/TeacherTimetableScreen';
@@ -76,9 +77,10 @@ const MainApp = () => {
       <Drawer.Screen name="Uniform"        component={UniformScreen}       />
 
       {/* Books Screens */}
-      <Drawer.Screen name="Books"        component={BooksScreen}        />
-      <Drawer.Screen name="TeacherBooks" component={TeacherBooksScreen} />
-      <Drawer.Screen name="AdminBooks"   component={AdminBooksScreen}   />
+      <Drawer.Screen name="Books"             component={BooksScreen}             />
+      <Drawer.Screen name="TeacherBooks"      component={TeacherBooksScreen}      />
+      <Drawer.Screen name="AdminBooks"        component={AdminBooksScreen}        />
+      <Drawer.Screen name="AdminConfigurator" component={AdminConfiguratorScreen} />
 
       {/* Teacher Menu Screens */}
       <Drawer.Screen name="TeacherTimetable"  component={TeacherTimetableScreen}  />

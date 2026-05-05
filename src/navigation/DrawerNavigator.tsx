@@ -38,7 +38,7 @@ const ADMIN_ITEMS = [
   { icon: '🏫', label: 'Class Mgmt', screen: 'AdminClasses' },
   { icon: '🚌', label: 'Bus Mgmt', screen: 'AdminBus' },
   { icon: '📊', label: 'Reports', screen: 'AdminReports' },
-  { icon: '⚙️', label: 'Settings', screen: 'Settings' },
+  { icon: '⚙️', label: 'Settings', screen: 'AdminConfigurator' },
   { icon: '🔔', label: 'Notifications', screen: 'Notifications' },
 ];
 
@@ -93,7 +93,7 @@ const DrawerNavigator = ({ navigation }: any) => {
     const unbuiltScreens = [
       'Academics', 'Uniform', 'Notifications',
       'AdminUsers', 'AdminClasses', 'AdminBus', 'AdminReports',
-      'Settings', 'Help'
+      'Help'
     ];
 
     if (unbuiltScreens.includes(screen)) {
