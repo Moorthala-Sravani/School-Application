@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
+import ErrorView from '../../components/common/ErrorView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
@@ -53,7 +54,7 @@ const NoticeBoardScreen = ({ navigation }: any) => {
         {loading ? (
           <ActivityIndicator size="large" color="#1ABC9C" style={{ marginTop: vs(20) }} />
         ) : error ? (
-          <Text style={{ color: 'red', textAlign: 'center', marginTop: vs(20) }}>{error}</Text>
+          <ErrorView message={error} onRetry={() => dispatch(fetchEvents('04'))} accentColor="#1ABC9C" />
         ) : events.length === 0 ? (
           <Text style={{ textAlign: 'center', marginTop: vs(20), color: colors.textSecond }}>No events scheduled for this month.</Text>
         ) : (

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, StatusBar, ActivityIndicator } from 'react-native';
+import ErrorView from '../../components/common/ErrorView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
@@ -38,7 +39,7 @@ const ExamResultScreen = ({ navigation }: any) => {
         {loading ? (
           <ActivityIndicator size="large" color="#F39C12" style={{ marginTop: vs(20) }} />
         ) : error ? (
-          <Text style={{ color: 'red', textAlign: 'center', marginTop: vs(20) }}>{error}</Text>
+          <ErrorView message={error} onRetry={() => studentKey && dispatch(fetchReport(studentKey))} accentColor="#F39C12" />
         ) : !studentKey ? (
           <Text style={{ color: colors.textSecond, textAlign: 'center', marginTop: vs(20) }}>
             Student profile is not available yet.

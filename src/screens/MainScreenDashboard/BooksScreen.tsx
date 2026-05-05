@@ -7,6 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { fetchBooks, fetchMyBookRequests, submitBookRequest } from '../../api/books.api';
+import ErrorView from '../../components/common/ErrorView';
+import { getErrorMessage } from '../../utils/errorUtils';
 import { colors } from '../../theme/colors';
 import { hs, vs, ms } from '../../theme/scale';
 
@@ -34,6 +36,7 @@ const BooksScreen = ({ navigation }: any) => {
   const [requests, setRequests]   = useState<any[]>([]);
   const [books, setBooks]         = useState<any[]>([]);
   const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState<string | null>(null);
   const [selected, setSelected]   = useState<number[]>([]);
   const [specialNote, setSpecialNote] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -44,11 +47,12 @@ const BooksScreen = ({ navigation }: any) => {
   const loadRequests = useCallback(async () => {
     if (!token) return;
     setLoading(true);
+    setError(null);
     try {
       const res = await fetchMyBookRequests(token);
       setRequests(res.data || []);
-    } catch {
-      // silent
+    } catch (err: any) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -57,11 +61,12 @@ const BooksScreen = ({ navigation }: any) => {
   const loadBooks = useCallback(async () => {
     if (!token) return;
     setLoading(true);
+    setError(null);
     try {
       const res = await fetchBooks(token, childClass);
       setBooks(res.data || []);
-    } catch {
-      // silent
+    } catch (err: any) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -150,6 +155,8 @@ const BooksScreen = ({ navigation }: any) => {
 
       {loading ? (
         <ActivityIndicator size="large" color="#1A5276" style={{ marginTop: vs(40) }} />
+      ) : error ? (
+        <ErrorView message={error} onRetry={() => tab === 'requests' ? loadRequests() : loadBooks()} accentColor="#1A5276" />
       ) : tab === 'requests' ? (
         <ScrollView contentContainerStyle={s.scroll}>
           {requests.length === 0 ? (

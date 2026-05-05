@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, ActivityIndicator, Alert } from 'react-native';
+import ErrorView from '../../components/common/ErrorView';
+import { getErrorMessage } from '../../utils/errorUtils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
@@ -14,6 +16,7 @@ const AdminDashboardScreen = ({ navigation }: any) => {
   const [studentCount, setStudentCount] = useState<number | null>(null);
   const [teacherCount, setTeacherCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAdminData();
@@ -22,6 +25,7 @@ const AdminDashboardScreen = ({ navigation }: any) => {
   const fetchAdminData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
       const [uniformRes, paymentsRes, studentsRes, teachersRes] = await Promise.allSettled([
         api.get('/uniform', config),
@@ -29,6 +33,15 @@ const AdminDashboardScreen = ({ navigation }: any) => {
         api.get('/students', config),
         api.get('/teachers', config),
       ]);
+
+      const allFailed = [uniformRes, paymentsRes, studentsRes, teachersRes].every(r => r.status === 'rejected');
+      if (allFailed) {
+        setError(getErrorMessage((uniformRes as PromiseRejectedResult).reason));
+        setStudentCount(0);
+        setTeacherCount(0);
+        setLoading(false);
+        return;
+      }
 
       const uniformData = uniformRes.status === 'fulfilled' && Array.isArray(uniformRes.value.data) ? uniformRes.value.data : [];
       const paymentsData = paymentsRes.status === 'fulfilled' && Array.isArray(paymentsRes.value.data) ? paymentsRes.value.data : [];
@@ -49,10 +62,10 @@ const AdminDashboardScreen = ({ navigation }: any) => {
       } else {
         setTeacherCount(92);
       }
-    } catch (err) {
-      // Failed to fetch admin data
-      setStudentCount(1246);
-      setTeacherCount(92);
+    } catch (err: any) {
+      setError(getErrorMessage(err));
+      setStudentCount(0);
+      setTeacherCount(0);
       setUniformOrders([]);
       setBillingTransactions([]);
     } finally {
@@ -158,7 +171,11 @@ const AdminDashboardScreen = ({ navigation }: any) => {
         </View>
 
         <Text style={styles.sectionTitle}>Recent Activity</Text>
-        {loading ? <ActivityIndicator color="#2C3E50" style={{ marginTop: vs(20) }} /> : activityItems.map((item) => (
+        {loading ? (
+          <ActivityIndicator color="#2C3E50" style={{ marginTop: vs(20) }} />
+        ) : error ? (
+          <ErrorView message={error} onRetry={fetchAdminData} accentColor="#2C3E50" />
+        ) : activityItems.map((item) => (
           <View key={item.id} style={styles.activityCard}>
             <View style={[styles.activityAvatar, { backgroundColor: item.color }]}>
               <Text style={styles.activityAvatarText}>{item.title[0]}</Text>

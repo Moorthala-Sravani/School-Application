@@ -7,6 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import api from '../../config/api';
+import ErrorView from '../../components/common/ErrorView';
+import { getErrorMessage } from '../../utils/errorUtils';
 import { colors } from '../../theme/colors';
 import { hs, vs, ms } from '../../theme/scale';
 
@@ -21,6 +23,7 @@ const AdminConfiguratorScreen = ({ navigation }: any) => {
 
   const [tab, setTab]               = useState<Tab>('uniforms');
   const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState<string | null>(null);
   const [saving, setSaving]         = useState(false);
 
   // Data
@@ -37,6 +40,7 @@ const AdminConfiguratorScreen = ({ navigation }: any) => {
   const loadAll = useCallback(async () => {
     if (!token) return;
     setLoading(true);
+    setError(null);
     try {
       const res = await api.get('/admin/config', authH(token));
       const data = res.data;
@@ -45,8 +49,8 @@ const AdminConfiguratorScreen = ({ navigation }: any) => {
       setLeaves(data.leaves || []);
       setWorkingDays(data.settings?.working_days || '220');
       setMinAttendance(data.settings?.min_attendance || '75');
-    } catch {
-      // silent
+    } catch (err: any) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -199,6 +203,8 @@ const AdminConfiguratorScreen = ({ navigation }: any) => {
 
       {loading ? (
         <ActivityIndicator size="large" color="#17202A" style={{ marginTop: vs(40) }} />
+      ) : error ? (
+        <ErrorView message={error} onRetry={loadAll} accentColor="#17202A" />
       ) : (
         <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
 

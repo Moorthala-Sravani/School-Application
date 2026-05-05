@@ -7,6 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { fetchInventory, fetchAllRequests, createBook, updateBook } from '../../api/books.api';
+import ErrorView from '../../components/common/ErrorView';
+import { getErrorMessage } from '../../utils/errorUtils';
 import { colors } from '../../theme/colors';
 import { hs, vs, ms } from '../../theme/scale';
 
@@ -25,6 +27,7 @@ const AdminBooksScreen = ({ navigation }: any) => {
   const [inventory, setInventory]   = useState<any[]>([]);
   const [requests, setRequests]     = useState<any[]>([]);
   const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editBook, setEditBook]     = useState<any>(null);
   const [saving, setSaving]         = useState(false);
@@ -38,21 +41,29 @@ const AdminBooksScreen = ({ navigation }: any) => {
   const loadInventory = useCallback(async () => {
     if (!token) return;
     setLoading(true);
+    setError(null);
     try {
       const res = await fetchInventory(token);
       setInventory(res.data || []);
-    } catch { /* silent */ }
-    finally { setLoading(false); }
+    } catch (err: any) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
 
   const loadRequests = useCallback(async () => {
     if (!token) return;
     setLoading(true);
+    setError(null);
     try {
       const res = await fetchAllRequests(token, reqStatusFilter || undefined);
       setRequests(res.data || []);
-    } catch { /* silent */ }
-    finally { setLoading(false); }
+    } catch (err: any) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   }, [token, reqStatusFilter]);
 
   useEffect(() => {
@@ -166,6 +177,8 @@ const AdminBooksScreen = ({ navigation }: any) => {
 
       {loading ? (
         <ActivityIndicator size="large" color="#512E5F" style={{ marginTop: vs(40) }} />
+      ) : error ? (
+        <ErrorView message={error} onRetry={() => tab === 'inventory' ? loadInventory() : loadRequests()} accentColor="#512E5F" />
       ) : tab === 'inventory' ? (
         <ScrollView contentContainerStyle={s.scroll}>
           {inventory.length === 0 ? (

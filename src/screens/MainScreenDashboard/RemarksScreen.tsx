@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import ErrorView from '../../components/common/ErrorView';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
@@ -68,8 +69,11 @@ const RemarksScreen = ({ navigation }: any) => {
           </TouchableOpacity>
         </View>
 
-        {loading ? <Text style={{ color: colors.textSecond, marginBottom: vs(12) }}>Loading remarks...</Text> : null}
-        {!loading && filteredRemarks.length === 0 ? (
+        {loading ? <ActivityIndicator color="#C0392B" style={{ marginVertical: vs(20) }} /> : null}
+        {!loading && error ? (
+          <ErrorView message={error} onRetry={() => dispatch(fetchMessages(undefined))} accentColor="#C0392B" />
+        ) : null}
+        {!loading && !error && filteredRemarks.length === 0 ? (
           <Text style={{ color: colors.textSecond, marginBottom: vs(12) }}>No remarks found.</Text>
         ) : null}
 

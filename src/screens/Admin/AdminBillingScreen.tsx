@@ -1,5 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import ErrorView from '../../components/common/ErrorView';
+import { getErrorMessage } from '../../utils/errorUtils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
@@ -13,46 +15,61 @@ const AdminBillingScreen = () => {
   const [overview, setOverview] = useState<any>(null);
   const [classProgress, setClassProgress] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchBillingData = async () => {
-      try {
-        setLoading(true);
-        const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
-        const [overviewRes, progressRes, txRes] = await Promise.allSettled([
-          api.get('/billing/overview', config),
-          api.get('/billing/class-progress', config),
-          api.get('/billing/transactions', config),
-        ]);
+  const loadBillingData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
+      const [overviewRes, progressRes, txRes] = await Promise.allSettled([
+        api.get('/billing/overview', config),
+        api.get('/billing/class-progress', config),
+        api.get('/billing/transactions', config),
+      ]);
 
-        if (overviewRes.status === 'fulfilled') {
-          setOverview(overviewRes.value.data);
-        }
-        if (progressRes.status === 'fulfilled' && Array.isArray(progressRes.value.data) && progressRes.value.data.length > 0) {
-          const mapped = progressRes.value.data.slice(0, 5).map((item: any, idx: number) => ({
-            id: `c-${idx}`,
-            name: item.className || item.class || `Class ${idx + 1}`,
-            value: Number(item.percentage || item.progress || 0),
-          }));
-          setClassProgress(mapped);
-        }
-        if (txRes.status === 'fulfilled' && Array.isArray(txRes.value.data) && txRes.value.data.length > 0) {
-          const mappedTx = txRes.value.data.slice(0, 10).map((tx: any, idx: number) => ({
-            id: String(tx.id || `tx-${idx}`),
-            name: tx.student_name || tx.studentName || tx.name || 'Student',
-            className: tx.class || tx.className || 'N/A',
-            amount: Number(tx.amount || tx.paidAmount || 0),
-            date: new Date(tx.date || tx.created_at || Date.now()).toLocaleDateString(),
-            status: tx.status || 'Paid',
-          }));
-          setTransactions(mappedTx as any);
-        }
-      } finally {
+      const allFailed =
+        overviewRes.status === 'rejected' &&
+        progressRes.status === 'rejected' &&
+        txRes.status === 'rejected';
+
+      if (allFailed) {
+        const firstErr = (overviewRes as PromiseRejectedResult).reason;
+        setError(getErrorMessage(firstErr));
         setLoading(false);
+        return;
       }
-    };
-    fetchBillingData();
+
+      if (overviewRes.status === 'fulfilled') {
+        setOverview(overviewRes.value.data);
+      }
+      if (progressRes.status === 'fulfilled' && Array.isArray(progressRes.value.data) && progressRes.value.data.length > 0) {
+        const mapped = progressRes.value.data.slice(0, 5).map((item: any, idx: number) => ({
+          id: `c-${idx}`,
+          name: item.className || item.class || `Class ${idx + 1}`,
+          value: Number(item.percentage || item.progress || 0),
+        }));
+        setClassProgress(mapped);
+      }
+      if (txRes.status === 'fulfilled' && Array.isArray(txRes.value.data) && txRes.value.data.length > 0) {
+        const mappedTx = txRes.value.data.slice(0, 10).map((tx: any, idx: number) => ({
+          id: String(tx.id || `tx-${idx}`),
+          name: tx.student_name || tx.studentName || tx.name || 'Student',
+          className: tx.class || tx.className || 'N/A',
+          amount: Number(tx.amount || tx.paidAmount || 0),
+          date: new Date(tx.date || tx.created_at || Date.now()).toLocaleDateString(),
+          status: tx.status || 'Paid',
+        }));
+        setTransactions(mappedTx as any);
+      }
+    } catch (err: any) {
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
+    }
   }, [token]);
+
+  useEffect(() => { loadBillingData(); }, [loadBillingData]);
 
   const summary = useMemo(() => {
     const collectedFromTx = transactions.reduce((total, tx) => total + Number(tx.amount || 0), 0);
@@ -100,6 +117,9 @@ const AdminBillingScreen = () => {
 
       <ScrollView contentContainerStyle={styles.container}>
         {loading ? <ActivityIndicator color="#2C3E50" style={{ marginBottom: vs(18) }} /> : null}
+        {!loading && error ? (
+          <ErrorView message={error} onRetry={loadBillingData} accentColor="#2C3E50" />
+        ) : null}
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>Fees Expected</Text>

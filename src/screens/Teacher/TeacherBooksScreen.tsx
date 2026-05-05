@@ -7,6 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { fetchPendingRequests, updateBookRequestStatus } from '../../api/books.api';
+import ErrorView from '../../components/common/ErrorView';
+import { getErrorMessage } from '../../utils/errorUtils';
 import { colors } from '../../theme/colors';
 import { hs, vs, ms } from '../../theme/scale';
 
@@ -29,6 +31,7 @@ const TeacherBooksScreen = ({ navigation }: any) => {
 
   const [requests, setRequests]       = useState<any[]>([]);
   const [loading, setLoading]         = useState(false);
+  const [error, setError]             = useState<string | null>(null);
   const [selectedClass, setSelectedClass] = useState('All');
   const [statusFilter, setStatusFilter]   = useState('pending');
   const [activeRequest, setActiveRequest] = useState<any>(null);
@@ -38,12 +41,13 @@ const TeacherBooksScreen = ({ navigation }: any) => {
   const loadRequests = useCallback(async () => {
     if (!token) return;
     setLoading(true);
+    setError(null);
     try {
       const classGroup = selectedClass === 'All' ? undefined : selectedClass;
       const res = await fetchPendingRequests(token, classGroup, statusFilter || undefined);
       setRequests(res.data || []);
-    } catch {
-      // silent
+    } catch (err: any) {
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -122,6 +126,8 @@ const TeacherBooksScreen = ({ navigation }: any) => {
 
       {loading ? (
         <ActivityIndicator size="large" color="#1E5631" style={{ marginTop: vs(40) }} />
+      ) : error ? (
+        <ErrorView message={error} onRetry={loadRequests} accentColor="#1E5631" />
       ) : (
         <ScrollView contentContainerStyle={s.scroll}>
           {Object.keys(groupedByStudent).length === 0 ? (

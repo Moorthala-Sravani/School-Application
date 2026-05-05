@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import api from '../../config/api';
+import ErrorView from '../../components/common/ErrorView';
+import { getErrorMessage } from '../../utils/errorUtils';
 import { colors } from '../../theme/colors';
 import { hs, vs, ms } from '../../theme/scale';
 
@@ -14,6 +16,7 @@ const AdminAttendanceScreen = ({ navigation }: any) => {
   const [selectedClass, setSelectedClass] = useState('6-A');
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const classes = ['6-A', '7-B', '8-C'];
 
@@ -30,6 +33,7 @@ const AdminAttendanceScreen = ({ navigation }: any) => {
 
   const fetchAttendance = async () => {
     setLoading(true);
+    setError(null);
     try {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       let endpoint = '';
@@ -38,11 +42,10 @@ const AdminAttendanceScreen = ({ navigation }: any) => {
       } else {
         endpoint = `/attendance?target_role=Teacher`;
       }
-      
       const res = await api.get(endpoint, config);
       setRecords(res.data || []);
     } catch (err: any) {
-      // Failed to fetch attendance
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -106,6 +109,8 @@ const AdminAttendanceScreen = ({ navigation }: any) => {
       <ScrollView contentContainerStyle={styles.container}>
         {loading ? (
           <ActivityIndicator size="large" color="#2C3E50" style={{ marginTop: vs(40) }} />
+        ) : error ? (
+          <ErrorView message={error} onRetry={fetchAttendance} accentColor="#2C3E50" />
         ) : Object.keys(groupedRecords).length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>📅</Text>
